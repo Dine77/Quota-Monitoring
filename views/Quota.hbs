@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {{>cdns}}
+</head>
+
+<body>
+    {{>header}}
+    <main>
+        <div id="main">
+            {{>navbar}}
+                <div id="termtable">                    
+                    <div class="quotaet">
+                        <div>
+                        <button type="button" id='edit'>Edit Quota</button>    
+                        </div>
+                        <div>
+                        <button type="button" id='download'>Download</button>  </div>
+                    </div>   
+                    <div>
+                        <div class="quotatil">
+                            <div class="quotaname">Distribution Quota</div>
+                        </div>
+                        <table class='table table-single-line'>
+                            <thead>
+                                <tr>
+                                    <th><span class='quotatotal_hd'>Distribution Quota</span></th>
+                                    <th><span class='quotatotal_hd'>Limit</span></th>
+                                    <th><span class='quotatotal_hd'>Total</span></th>
+                                    <th><span class='quotatotal_hd'>Need</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span>DBS Yuu Visa Credit Card is Main Card or Own but not main card</span></td>
+                                    <td>50</td>
+                                    <td>27</td>
+                                    <td>23</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td><span>DBS Multi-Currency Card Owner & Not Fintech</span></td>
+                                    <td>50</td>
+                                    <td>40</td>
+                                    <td>10</td>
+                                </tr>
+                                <tr>
+                                    <td><span>Fintech & Not DBS Multi-Currency Card Owner</span></td>
+                                    <td>150</td>
+                                    <td>52</td>
+                                    <td>98</td>
+                                </tr>
+                                <tr>
+                                    <td><span><b>Total</b></span></td>
+                                    <td>250</td>
+                                    <td>119</td>
+                                    <td>131</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="quotatil">
+                            <div class="quotaname">Age Gender Quota</div>
+                        </div>
+
+                        <table class='table table-single-line'>
+                            <thead>
+                                <tr>
+                                    <th><span class='quotatotal_hd'>Age Gender Quota</span></th>
+                                    <th><span class='quotatotal_hd'></span></th>
+                                    <th><span class='quotatotal_hd'>Limit</span></th>
+                                    <th><span class='quotatotal_hd'>Total</span></th>
+                                    <th><span class='quotatotal_hd'>Need</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan='3'><span class='crossname'>Male</span></td>
+                                    <td>20 - 29 Years</td>
+                                    <td>79</td>
+                                    <td>24</td>
+                                    <td>55</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>30 - 39 Years</td>
+                                    <td>90</td>
+                                    <td>62</td>
+                                    <td>28</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>40 - 55 Years</td>
+                                    <td>150</td>
+                                    <td>101</td>
+                                    <td>49</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan='3'><span class='crossname'>Female</span></td>
+                                    <td>20 - 29 Years</td>
+                                    <td>66</td>
+                                    <td>20</td>
+                                    <td>46</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>30 - 39 Years</td>
+                                    <td>79</td>
+                                    <td>63</td>
+                                    <td>16</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>40 - 55 Years</td>
+                                    <td>137</td>
+                                    <td>76</td>
+                                    <td>61</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><span><b>Total</b></span></td>
+                                    <td>601</td>
+                                    <td>346</td>
+                                    <td>255</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    const rectangleSVG = 'M 1 12 L 15 12 L 15 17 L 1 17';
+    $(function () {
+        $("#fromdate").datepicker();
+        $("#todate").datepicker();
+    });
+
+    // Create the chart
+
+
+    // Select 2
+    $(document).ready(function () {
+        $('.js-example-basic-single').select2();
+
+    });
+
+    $("#apply").click(function () {
+        const fromdate = new Date($("#fromdate").val());
+        let day = fromdate.getDate();
+        let month = fromdate.getMonth() + 1; // Months are zero-based in JavaScript
+        let year = fromdate.getFullYear();
+        let formattedDate = `${month}/${day}/${year}`;
+
+        const todate = new Date($("#todate").val());
+        let today = todate.getDate();
+        let tomonth = todate.getMonth() + 1; // Months are zero-based in JavaScript
+        let toyear = todate.getFullYear();
+        let toDate = `${tomonth}/${today}/${toyear}`;
+
+        const fromdates = formattedDate;
+        const todates = toDate
+        $.ajax({
+            url: '/auth/select',
+            method: 'POST',
+            data: {
+                fromdates: fromdates,
+                todates: todates,
+            },
+            success: function (response) {
+                const data1 = response.data1;
+                const data2 = response.data2;
+                console.log(data2)
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+
+
+    $(document).ready(function () {
+        $("#fromdate").datepicker("setDate", "-7");
+        $("#todate").datepicker("setDate", "0");
+        $("#apply").click();
+        $("#datefill").change(function () {
+            var selectedValue = $('#datefill').val();
+            if (selectedValue === 'All') {
+                $("#fromdate").datepicker("setDate", "0");
+                $("#todate").datepicker("setDate", "0");
+            }
+            if (selectedValue === 'Custom') {
+                $("#fromdate").datepicker("setDate", "0");
+                $("#todate").datepicker("setDate", "0");
+            }
+
+            if (selectedValue === 'Last 7 days') {
+                $("#fromdate").datepicker("setDate", "-7");
+                $("#todate").datepicker("setDate", "0");
+            }
+            if (selectedValue === 'This Month') {
+                var currentDate = new Date();
+                // Calculate the first day of the current month
+                var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                // Calculate the last day of the current month
+                var lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                $("#fromdate").datepicker("setDate", firstDay);
+                $("#todate").datepicker("setDate", currentDate);
+            }
+            if (selectedValue === 'Last Month') {
+                var currentDate = new Date();
+
+                // Calculate the first day of the current month
+                var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+
+                // Calculate the last day of the current month
+                var lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                $("#fromdate").datepicker("setDate", firstDay);
+                $("#todate").datepicker("setDate", lastDay);
+            }
+            if (selectedValue === 'Last 3 Months') {
+                var toDate = new Date();
+                var fromDate = new Date();
+                fromDate.setMonth(toDate.getMonth() - 3);
+                // Format dates to MM/DD/YYYY (or change format as needed)
+                var toDateString = $.datepicker.formatDate('mm/dd/yy', toDate);
+                var fromDateString = $.datepicker.formatDate('mm/dd/yy', fromDate);
+
+                $("#fromdate").datepicker("setDate", fromDateString);
+                $("#todate").datepicker("setDate", toDateString);
+            }
+
+            if (selectedValue === 'Last 6 Months') {
+                var toDate = new Date();
+                var fromDate = new Date();
+                fromDate.setMonth(toDate.getMonth() - 6);
+                // Format dates to MM/DD/YYYY (or change format as needed)
+                var toDateString = $.datepicker.formatDate('mm/dd/yy', toDate);
+                var fromDateString = $.datepicker.formatDate('mm/dd/yy', fromDate);
+
+                $("#fromdate").datepicker("setDate", fromDateString);
+                $("#todate").datepicker("setDate", toDateString);
+            }
+            if (selectedValue === 'YTD') {
+                // Get the current date
+                var today = new Date();
+                // Set the 'From' date to January 1st of the current year
+                var startOfYear = new Date(today.getFullYear(), 0, 1);
+
+                // Format dates to mm/dd/yy (or any other format you're using)
+                var formattedStartOfYear = $.datepicker.formatDate('mm/dd/yy', startOfYear);
+                var formattedToday = $.datepicker.formatDate('mm/dd/yy', today);
+
+                $("#fromdate").datepicker("setDate", formattedStartOfYear);
+                $("#todate").datepicker("setDate", formattedToday);
+            }
+        });
+    });
+</script>
+
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {{>cdns}}
+</head>
+
+<body>
+    {{>header}}
+    <main>
+        <div id="main">
+            {{>navbar}}
+            <div id="charttable">
+                <div class="chart">
+                    <div id="container"></div>
+                </div>
+                {{!-- <div class="topbrk">
+                    <label>Top Break:</label>
+                    <select class="js-example-basic-single" name="state">
+                        <option value="Country">Country</option>
+                        <option value="Gender">Gender</option>
+                        <option value="Age Group">Age Group</option>
+                    </select>
+                </div> --}}
+                <div>
+                    <table class='table table-single-line' id="sts_table">
+                        <thead>
+                            <tr>
+                                <th><span class='total_hd'></span></th>
+                                <th><span class='total_hd'>Total</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+</body>
+<script>
+    const rectangleSVG = 'M 1 12 L 15 12 L 15 17 L 1 17';
+    $(function () {
+        $("#fromdate").datepicker();
+        $("#todate").datepicker();
+    });
+
+    // Create the chart
+
+
+    // Select 2
+    $(document).ready(function () {
+        $('.js-example-basic-single').select2();
+
+    });
+
+    $("#apply").click(function () {
+        const fromdate = new Date($("#fromdate").val());
+        let day = fromdate.getDate();
+        let month = fromdate.getMonth() + 1; // Months are zero-based in JavaScript
+        let year = fromdate.getFullYear();
+        let formattedDate = `${month}/${day}/${year}`;
+
+        const todate = new Date($("#todate").val());
+        let today = todate.getDate();
+        let tomonth = todate.getMonth() + 1; // Months are zero-based in JavaScript
+        let toyear = todate.getFullYear();
+        let toDate = `${tomonth}/${today}/${toyear}`;
+
+        const fromdates = formattedDate;
+        const todates = toDate
+        $.ajax({
+            url: '/auth/select',
+            method: 'POST',
+            data: {
+                fromdates: fromdates,
+                todates: todates,
+            },
+            success: function (response) {
+                const data2 = response.data2;
+                $('#sts_table tbody').empty();
+                data2.forEach(item => {
+                    $('#sts_table tbody').append(`
+        <tr>
+            <td><span title="${item.tooltip}">${item.title}</span></td>
+            <td>${item.title === 'Participation Rate' ? `${item.Count}%` : item.Count}</td>
+        </tr>`);
+                });
+
+
+
+                Highcharts.chart('container', {
+                    chart: {
+                        events: {
+                            load() {
+                                const chart = this;
+
+                                this.legend.allItems.forEach(function (item) {
+                                    item.legendItem.label.translate(0, -1);
+
+                                    item.legendItem.line.attr({
+                                        opacity: 0
+                                    });
+
+                                    item.legendItem.symbol.attr({
+                                        d: rectangleSVG,
+                                    });
+                                });
+                            }
+                        },
+                        type: 'area'
+                    },
+                    title: {
+                        text: ''
+                    },
+
+                    credits: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Qualified Completes'
+                        }
+                    },
+
+                    legend: {
+                        enabled: true,
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            lineColor: '#0f2336',
+                            marker: {
+                                fillColor: '#5a748c',
+                                lineColor: '#5a748c'
+                            },
+                            dataLabels: {
+                                enabled: false
+                            }
+                        }
+                    },
+
+                    series: [{
+                        name: 'Total',
+                        colorByPoint: false,
+                        data: response.mainData,
+                        fillColor: '#1a344d91'
+                    }],
+                    drilldown: {
+                        breadcrumbs: {
+                            buttonTheme: {
+                                fill: '#f7f7f7',
+                                padding: 8,
+                                stroke: '#cccccc',
+                                'stroke-width': 1
+                            },
+                            floating: true,
+                            position: {
+                                align: 'right'
+                            },
+                            showFullPath: false
+                        },
+                        activeAxisLabelStyle: {
+                            textDecoration: 'none',
+                            fontStyle: 'italic',
+                            color: '#5a748c'
+                        },
+                        activeDataLabelStyle: {
+                            textDecoration: 'none',
+                            fontStyle: 'italic',
+                            color: '#5a748c'
+                        },
+                        series: response.drilldownData,
+                        color: '#5a748c'
+                    }
+                });
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+
+
+    $(document).ready(function () {
+        $("#fromdate").datepicker("setDate", "-7");
+        $("#todate").datepicker("setDate", "0");
+        $("#apply").click();
+        $("#datefill").change(function () {
+            var selectedValue = $('#datefill').val();
+            if (selectedValue === 'All') {
+                $("#fromdate").datepicker("setDate", "0");
+                $("#todate").datepicker("setDate", "0");
+            }
+            if (selectedValue === 'Custom') {
+                $("#fromdate").datepicker("setDate", "0");
+                $("#todate").datepicker("setDate", "0");
+            }
+
+            if (selectedValue === 'Last 7 days') {
+                $("#fromdate").datepicker("setDate", "-7");
+                $("#todate").datepicker("setDate", "0");
+            }
+            if (selectedValue === 'This Month') {
+                var currentDate = new Date();
+                // Calculate the first day of the current month
+                var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                // Calculate the last day of the current month
+                var lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                $("#fromdate").datepicker("setDate", firstDay);
+                $("#todate").datepicker("setDate", currentDate);
+            }
+            if (selectedValue === 'Last Month') {
+                var currentDate = new Date();
+
+                // Calculate the first day of the current month
+                var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+
+                // Calculate the last day of the current month
+                var lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                $("#fromdate").datepicker("setDate", firstDay);
+                $("#todate").datepicker("setDate", lastDay);
+            }
+            if (selectedValue === 'Last 3 Months') {
+                var toDate = new Date();
+                var fromDate = new Date();
+                fromDate.setMonth(toDate.getMonth() - 3);
+                // Format dates to MM/DD/YYYY (or change format as needed)
+                var toDateString = $.datepicker.formatDate('mm/dd/yy', toDate);
+                var fromDateString = $.datepicker.formatDate('mm/dd/yy', fromDate);
+
+                $("#fromdate").datepicker("setDate", fromDateString);
+                $("#todate").datepicker("setDate", toDateString);
+            }
+
+            if (selectedValue === 'Last 6 Months') {
+                var toDate = new Date();
+                var fromDate = new Date();
+                fromDate.setMonth(toDate.getMonth() - 6);
+                // Format dates to MM/DD/YYYY (or change format as needed)
+                var toDateString = $.datepicker.formatDate('mm/dd/yy', toDate);
+                var fromDateString = $.datepicker.formatDate('mm/dd/yy', fromDate);
+
+                $("#fromdate").datepicker("setDate", fromDateString);
+                $("#todate").datepicker("setDate", toDateString);
+            }
+            if (selectedValue === 'YTD') {
+                // Get the current date
+                var today = new Date();
+                // Set the 'From' date to January 1st of the current year
+                var startOfYear = new Date(today.getFullYear(), 0, 1);
+
+                // Format dates to mm/dd/yy (or any other format you're using)
+                var formattedStartOfYear = $.datepicker.formatDate('mm/dd/yy', startOfYear);
+                var formattedToday = $.datepicker.formatDate('mm/dd/yy', today);
+
+                $("#fromdate").datepicker("setDate", formattedStartOfYear);
+                $("#todate").datepicker("setDate", formattedToday);
+            }
+        });
+    });
+
+
+
+</script>
+
+</html>
